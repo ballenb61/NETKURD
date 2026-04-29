@@ -41,22 +41,21 @@
 
         <div class="p-4 bg-[#0d0d0d] border-t border-cyan-900/50 flex gap-2">
             <input type="text" id="user-input" placeholder="فەرمان بنووسە..." 
-                class="flex-1 bg-black border border-cyan-900/50 rounded px-4 py-2 text-sm text-cyan-400 outline-none focus:border-cyan-400 transition-all terminal-text">
-            <button onclick="sendMessage()" class="bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded font-bold text-xs shadow-[0_0_10px_#06b6d4] transition-all active:scale-95 text-white">ناردن</button>
+                class="flex-1 bg-black border border-cyan-900/50 rounded px-4 py-2 text-sm text-cyan-400 outline-none focus:border-cyan-400 transition-all terminal-text text-right">
+            <button id="send-btn" class="bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded font-bold text-xs shadow-[0_0_10px_#06b6d4] transition-all active:scale-95 text-white">ناردن</button>
         </div>
     </div>
 
     <script>
         const API_KEY = "AIzaSyCmgO4FdCNTmV2rn4qS_TobaFKw9ik7ZRY"; 
 
-        async function sendMessage() {
+        async function startChat() {
             const input = document.getElementById('user-input');
             const chatBox = document.getElementById('chat-box');
             if (!input.value.trim()) return;
 
             const userMsg = input.value;
             
-            // User Message
             const userDiv = document.createElement('div');
             userDiv.className = "ml-auto max-w-[90%] p-3 rounded border border-gray-700 bg-gray-800/40 text-sm text-gray-300 terminal-text my-2 text-right";
             userDiv.innerText = userMsg;
@@ -64,10 +63,9 @@
             input.value = "";
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            // Loading Message
             const aiDiv = document.createElement('div');
             aiDiv.className = "mr-auto max-w-[90%] p-3 rounded border border-cyan-400/30 bg-cyan-900/10 text-sm text-cyan-100 terminal-text my-2 text-right";
-            aiDiv.innerHTML = " خەریکی پڕۆسێس کردنی فەرمانەکەم... ";
+            aiDiv.innerHTML = "...خەریکی پڕۆسێس کردنی فەرمانەکەم";
             chatBox.appendChild(aiDiv);
 
             try {
@@ -75,4 +73,26 @@
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: userMsg + " (وەڵامەکانت زۆر کورت بن، بە زمانی کوردی بن و
+                        contents: [{ parts: [{ text: userMsg + " (وەڵامەکانت زۆر کورت بن، بە زمانی کوردی بن و بە شێوازی فەرماندەیی سەربازی وەڵام بدەرەوە)" }] }]
+                    })
+                });
+
+                const data = await response.json();
+                const aiResponse = data.candidates[0].content.parts[0].text;
+                aiDiv.innerHTML = `[| NETKURD AI |] <br> ${aiResponse}`;
+            } catch (error) {
+                aiDiv.innerHTML = "[| ئیرۆر |] <br> فەرماندە، کێشەیەک لە پەیوەندی هەیە.";
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // بەستنەوەی دوگمەکە بە فەنکشنەکەوە
+        document.getElementById('send-btn').addEventListener('click', startChat);
+
+        // ڕێگەدان بە بەکارهێنانی Enter
+        document.getElementById('user-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') startChat();
+        });
+    </script>
+</body>
+</html>
